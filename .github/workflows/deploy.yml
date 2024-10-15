@@ -13,7 +13,7 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/meinPrivateKey
+          echo "${{ secrets.SSH_PRIVAT_KEY}}" > ~/.ssh/meinPrivateKey
           chmod 600 ~/.ssh/meinPrivateKey
           ssh-keyscan -H ${{secrets.EC2_IP}} >> ~/.ssh/known_hosts
       - name: SSH Connection to EC2
