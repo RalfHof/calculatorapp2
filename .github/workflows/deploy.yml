@@ -1,35 +1,36 @@
 name: Deploy on EC2
-
 on: push
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-
+      - name: build repo
+        run: |
+          npm install
+          npm run build
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/meinPrivateKey
+          echo "${{ secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/meinPrivateKey
           chmod 600 ~/.ssh/meinPrivateKey
-
-      - name: SSH Connection
+          ssh-keyscan -H ${{secrets.EC2_IP}} >> ~/.ssh/known_hosts
+      - name: SSH Connection to EC2
         run: |
-          ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} 'bash -s' <<EOF
-            sudo yum update -y
-            sudo yum upgrade -y
-            sudo yum install -y nodejs
-            sudo npm install -g serve
-          EOF
-            
-            npm install
-            npm run build
+          ssh -i ~/.ssh/meinPrivateKey ec2-user@${{secrets.EC2_IP}} << 'ENDSSH'
+              sudo yum update -y
+              sudo yum upgrade -y
+              sudo yum install -y nodejs
+              sudo npm install -g serve
+          ENDSSH
       - name: Copy build to EC2
-      run: scp -i ~/.ssh/meinPrivateKey -r build ec2 
-
+        run: scp -i ~/.ssh/meinPrivateKey -r build ec2-user@${{secrets.EC2_IP}}:/home/ec2-user/build
+      - name: Start Calculator on EC2
+        run: |
+            ssh -i ~/.ssh/meinPrivateKey ec2-user@${{secrets.EC2_IP}} << 'ENDSSH'
+                sudo serve -l 80 -s ~/build
+            ENDSSH
 
 
  
