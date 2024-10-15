@@ -7,7 +7,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Hello World
-        run: echo "Hello World"
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-  
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/meinPrivateKey
+          chmod 600 ~/.ssh/meinPrivateKey
+
+      - name: SSH Connection
+        run: |
+          ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} 'bash -s' <<EOF
+            sudo yum update -y
+            sudo yum upgrade -y
+            sudo yum install -y nodejs
+            sudo npm install -g serve
+          EOF
+            
+            npm install
+            npm run build
+      - name: Copy build to EC2
+      run: scp -i ~/.ssh/meinPrivateKey -r build ec2 
+
+
+
+ 
