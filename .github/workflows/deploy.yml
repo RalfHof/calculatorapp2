@@ -39,14 +39,15 @@ jobs:
               sudo docker pull "${{secrets.DOCKERHUB_USERNAME}}"/calculatorapp:latest"
           ENDSSH
 
-      - name: Start Docker Container on EC2 instance
+      - name: Start Docker Container on EC2 instance starten
+      
         run: |
           ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
              docker run -d -p 3000:3000 --name calculatorapp "${{ secrets.DOCKERHUB_USER }}/calculatorapp:latest"
           ENDSSH
 
 
-      - name: clean uo SSH Key File (optional)
+      - name: SSH clean uo SSH Key File (optional)
         run: |
           rm mein PivatKey
             
