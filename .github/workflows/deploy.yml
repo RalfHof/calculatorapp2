@@ -28,7 +28,7 @@ jobs:
 
       - name: SSH Connection to EC2
         run: |
-          ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
+          ssh -tt -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
               sudo yum update -y
               sudo yum upgrade -y
               sudo yum install -y docker  # Installiere Docker, falls nicht vorhanden
@@ -40,17 +40,13 @@ jobs:
 
       - name: Start Docker Container on EC2
         run: |
-          ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
+          ssh -tt -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
               docker run -d -p 3000:3000 --name calculatorapp "${{ secrets.DOCKERHUB_USERNAME }}/calculatorapp:latest"
           ENDSSH
 
       - name: Clean up SSH Key File (optional)
         run: |
-          rm ~/.ssh/meinPrivateKey  # Entferne den SSH-Schlüssel nach der Verwendung
-
-
-            
-
+          rm ~/.ssh/meinPrivateKey
 
 
  
