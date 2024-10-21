@@ -21,18 +21,18 @@ jobs:
 
       - name: Set up SSH
         run: |
-          sudo mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVAT_KEY }}" | sudo tee ~/.ssh/meinPrivateKey
-          sudo chmod 600 ~/.ssh/meinPrivateKey
-          ssh-keyscan -H ${{ secrets.EC2_IP }} | sudo tee -a ~/.ssh/known_hosts
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVAT_KEY }}" > ~/.ssh/meinPrivateKey
+          chmod 600 ~/.ssh/meinPrivateKey
+          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
 
       - name: SSH Connection to EC2
         run: |
-          ssh -tt -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
+          ssh -o StrictHostKeyChecking=no -tt -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
               sudo yum update -y
               sudo yum upgrade -y
-              sudo yum install -y docker  # Installiere Docker, falls nicht vorhanden
-              sudo systemctl enable docker.service
+              sudo yum install -y docker
+              sudo systemctl enable docker
               sudo systemctl start docker
               sudo usermod -aG docker ec2-user
               sudo docker pull "${{ secrets.DOCKERHUB_USERNAME }}/calculatorapp:latest"
@@ -44,9 +44,9 @@ jobs:
               docker run -d -p 3000:3000 --name calculatorapp "${{ secrets.DOCKERHUB_USERNAME }}/calculatorapp:latest"
           ENDSSH
 
-      - name: Clean up SSH Key File (optional)
-        run: |
-          rm ~/.ssh/meinPrivateKey
+      - name: Clean up SSH Key File
+        run: rm ~/.ssh/meinPrivateKey
+
 
 
  
