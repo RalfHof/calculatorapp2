@@ -3,34 +3,50 @@ on: push
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: build repo
+
+      - name: Build Docker Images
         run: |
-          sudo npm install
-          sudo npm run build
+          docker build -t "${{ secrets.DOCKERHUB_USER }}/calculatorapp:latest" .
+
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Docker Push  
+        run: |
+          docker push "${{ secrets.DOCKERHUB_USERNAME }}/calculatorapp:latest .
+
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVAT_KEY}}" > ~/.ssh/meinPrivateKey
+          echo "${{ secrets.SSH_PRIVAT_KEY }}" > ~/.ssh/meinPrivateKey
           chmod 600 ~/.ssh/meinPrivateKey
-          ssh-keyscan -H ${{secrets.EC2_IP}} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
+
       - name: SSH Connection to EC2
         run: |
-          ssh -i ~/.ssh/meinPrivateKey ec2-user@${{secrets.EC2_IP}} << 'ENDSSH'
+          ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
               sudo yum update -y
-              sudo yum upgrade -y
-              sudo yum install -y nodejs
-              sudo npm install -g serve
+              sudo yum install -y docker  # Installiere Docker, falls nicht vorhanden
+              sudo systemctl start docker
+              sudo usermod -aG docker ec2-user
+              docker pull "${{secrets.DOCKERHUB_USERNAME}}"/calculatorapp:latest"
           ENDSSH
-      - name: Copy build to EC2
-        run: scp -i ~/.ssh/meinPrivateKey -r build ec2-user@${{secrets.EC2_IP}}:/home/ec2-user/build
-      - name: Start Calculator on EC2
+
+      - name: Start Docker Container on EC2 instance
         run: |
-            ssh -i ~/.ssh/meinPrivateKey ec2-user@${{secrets.EC2_IP}} << 'ENDSSH'
-                sudo serve -l 80 -s ~/build
-            ENDSSH
+          ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
+             docker run -d -p 80:3000 --name calculatorapp "${{ secrets.DOCKERHUB_USER }}/calculatorapp:latest"
+          ENDSSH
+
+
+      - name: clean uo SSH Key File 
+        run: |
+            
+
 
 
  
