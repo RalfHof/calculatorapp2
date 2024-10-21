@@ -21,10 +21,10 @@ jobs:
 
       - name: Set up SSH
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVAT_KEY }}" > ~/.ssh/meinPrivateKey
-          chmod 600 ~/.ssh/meinPrivateKey
-          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
+          sudo mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVAT_KEY }}" | sudo tee ~/.ssh/meinPrivateKey
+          sudo chmod 600 ~/.ssh/meinPrivateKey
+          ssh-keyscan -H ${{ secrets.EC2_IP }} | sudo tee -a ~/.ssh/known_hosts
 
       - name: SSH Connection to EC2
         run: |
@@ -47,6 +47,7 @@ jobs:
       - name: Clean up SSH Key File (optional)
         run: |
           rm ~/.ssh/meinPrivateKey  # Entferne den SSH-Schlüssel nach der Verwendung
+
 
             
 
