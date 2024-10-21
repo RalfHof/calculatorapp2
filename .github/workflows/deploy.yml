@@ -8,7 +8,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Build Docker Images
+      - name: Build Docker Image
         run: |
           docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/calculatorapp:latest" .
 
