@@ -30,21 +30,25 @@ jobs:
         run: |
           ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
               sudo yum update -y
+              sudo yum upgrade -y
+            
               sudo yum install -y docker  # Installiere Docker, falls nicht vorhanden
+              sudo syytemctl enable docker.service
               sudo systemctl start docker
               sudo usermod -aG docker ec2-user
-              docker pull "${{secrets.DOCKERHUB_USERNAME}}"/calculatorapp:latest"
+              sudo docker pull "${{secrets.DOCKERHUB_USERNAME}}"/calculatorapp:latest"
           ENDSSH
 
       - name: Start Docker Container on EC2 instance
         run: |
           ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
-             docker run -d -p 80:3000 --name calculatorapp "${{ secrets.DOCKERHUB_USER }}/calculatorapp:latest"
+             docker run -d -p 3000:3000 --name calculatorapp "${{ secrets.DOCKERHUB_USER }}/calculatorapp:latest"
           ENDSSH
 
 
-      - name: clean uo SSH Key File 
+      - name: clean uo SSH Key File (optional)
         run: |
+          rm mein PivatKey
             
 
 
