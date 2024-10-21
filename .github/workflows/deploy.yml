@@ -5,7 +5,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+
+
     steps:
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/meinPrivateKey
+          chmod 600 ~/.ssh/meinPrivateKey
+          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
+
       - name: Checkout Code
         uses: actions/checkout@v2
 
@@ -20,13 +29,7 @@ jobs:
         run: |
           docker push "${{ secrets.DOCKERHUB_USERNAME }}/calculatorapp:latest"
 
-      - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/meinPrivateKey
-          chmod 600 ~/.ssh/meinPrivateKey
-          ssh-keyscan -H ${{ secrets.EC2_IP }} >> ~/.ssh/known_hosts
-
+     
       - name: SSH Connection to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -tt -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
