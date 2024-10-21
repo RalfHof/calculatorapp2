@@ -8,8 +8,8 @@ jobs:
         uses: actions/checkout@v2
       - name: build repo
         run: |
-          npm install
-          npm run build
+          sudo npm install
+          sudo npm run build
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
@@ -29,7 +29,7 @@ jobs:
       - name: Start Calculator on EC2
         run: |
             ssh -i ~/.ssh/meinPrivateKey ec2-user@${{secrets.EC2_IP}} << 'ENDSSH'
-                nohup sudo serve -l 80 -s /home/${{ secrets.USER_NAME }}/build > /dev/null 2>&1 &
+                sudo serve -l 80 -s ~/build
             ENDSSH
 
 
