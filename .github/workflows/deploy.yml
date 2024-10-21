@@ -10,7 +10,7 @@ jobs:
 
       - name: Build Docker Images
         run: |
-          docker build -t "${{ secrets.DOCKERHUB_USER }}/calculatorapp:latest" .
+          docker build -t RalfHof/calculatorapp:latest" .
 
       - name: Docker Login
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
@@ -40,7 +40,7 @@ jobs:
           ENDSSH
 
       - name: Start Docker Container on EC2 instance starten
-      
+
         run: |
           ssh -i ~/.ssh/meinPrivateKey ec2-user@${{ secrets.EC2_IP }} << 'ENDSSH'
              docker run -d -p 3000:3000 --name calculatorapp "${{ secrets.DOCKERHUB_USER }}/calculatorapp:latest"
