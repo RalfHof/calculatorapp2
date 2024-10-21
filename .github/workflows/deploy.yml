@@ -44,5 +44,5 @@ jobs:
               docker run -d -p 3000:3000 --name calculatorapp "${{ secrets.DOCKERHUB_USERNAME }}/calculatorapp:latest"
           ENDSSH
 
-      - name: Clean up SSH Key File
+      - name: Clean up SSH Key File 
         run: rm ~/.ssh/meinPrivateKey
